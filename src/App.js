@@ -1,24 +1,29 @@
-import React, {useState} from "react";
+import React, {useState,useEffect} from "react";
 import {nanoid}from "nanoid";
 import NotesList from "./Components/NotesList"; 
+import Serach from "./Components/Serach";
+import Header from "./Components/Header";
 function App() {
-  const [notes , setNotes]=useState([
-    {
-    id:nanoid(),
-    text:"this is my first note",
-    date:"03/10/2021",
-    },
-    {
-    id:nanoid(),
-    text:"this is my second note",
-    date:"03/10/2021",
-    },
-    {
-    id:nanoid(),
-    text:"this is my third note",
-    date:"03/10/2021",
-    },
-]);
+  const [notes , setNotes]=useState([]);
+
+  const [searchText,setSearchText]=useState('');
+
+  const[DarkMode,setDarkMode]=useState(false);
+
+useEffect(() => {
+    const savedNotes = JSON.parse(localStorage.getItem('react-notes-app-data'));
+    if (savedNotes) {
+      setNotes(savedNotes);
+  }
+}, []);
+  
+
+  useEffect(() => {
+      localStorage.setItem('react-notes-app-data',JSON.stringify(notes));
+  }, [notes]);
+
+ 
+
   const addNote=(text)=>{
     const date=new Date();
     const newNote = {
@@ -34,9 +39,18 @@ const deleteNote = (id)=>{
  setNotes(newNotes);
 }
   return (  
-   <div className="container" >
-     <NotesList notes={notes} handleAddNote={addNote} handleDeleteNote={deleteNote}/>
+    <div className={`${DarkMode && 'dark-mode'}`}>
+        <div className="container" >
+     <Header handleToggleDarkMode={setDarkMode}  />
+     <Serach handleSearchNote={setSearchText} /> 
+     <NotesList
+      notes={notes.filter((note)=>note.text.toLowerCase().includes(searchText))
+      } 
+      handleAddNote={addNote} 
+      handleDeleteNote={deleteNote}/>
      </div>
+    </div>
+   
   );
 }
 
